@@ -28,18 +28,14 @@ class Fisher():
     def avgPoint(self, m):
         return np.average(m, axis=0)
 
-    def unitize_vector(self, v):
-        return v / np.linalg.norm(v)
+    # def unitize_vector(self, v):
+    #     return v / np.linalg.norm(v)
 
     def cal_threshold_1(self, w, avg_point_0, avg_point_1):
         return np.dot(w.transpose(), avg_point_0 + avg_point_1) / 2
 
     def cal_threshold_2(self, w, avg_point_0, avg_point_1):
         return np.dot(w.transpose(), len(avg_point_1) * avg_point_0 + len(avg_point_0) * avg_point_1) / (len(avg_point_1) + len(avg_point_0))
-
-    def cal_threshold_3(self, w, avg_point_0, avg_point_1):
-        n0 = len(avg_point_0)
-        n1 = len(avg_point_1)
 
     def cal_w(self, cal_thresh=cal_threshold_2):
         idx_0, idx_1 = self.separate(self.trn_label)
@@ -52,8 +48,9 @@ class Fisher():
 
         plt.xlabel(u'x')
         plt.ylabel(u'y')
-        #plt.plot(point_0[:, 0], point_0[:, 1], 'ro')
-        #plt.plot(point_1[:, 0], point_1[:, 1], 'bo')
+
+        plt.plot(point_0[:, 0], point_0[:, 1], 'ro')
+        plt.plot(point_1[:, 0], point_1[:, 1], 'bo')
         plt.plot(t_point_0[:, 0], t_point_0[:, 1], 'rx')
         plt.plot(t_point_1[:, 0], t_point_1[:, 1], 'bx')
 
@@ -62,17 +59,13 @@ class Fisher():
         avg_point_1 = self.avgPoint(point_1)
         print 'avg_point_1 ', avg_point_1
 
-        # diff_0 = np.tile(avg_point_0, (len(idx_0), 1)) - point_0
-        # diff_1 = np.tile(avg_point_1, (len(idx_1), 1)) - point_1
-        # print 'diff_0', diff_0
-        # print 'diff_1', diff_1
         diff_0 = point_0 - np.tile(avg_point_0, (len(idx_0), 1))
         diff_1 = point_1 - np.tile(avg_point_1, (len(idx_1), 1))
 
         s0 = np.dot(diff_0.transpose(), diff_0)
         s1 = np.dot(diff_1.transpose(), diff_1)
         sw = s0 + s1
-        #sw_ = sw ** -1
+
         sw_ = np.linalg.inv(sw)
         w = np.dot(sw_, avg_point_0 - avg_point_1)
         x = np.arange(-0.1, 0.2, 0.1)
