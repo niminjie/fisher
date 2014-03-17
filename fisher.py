@@ -37,6 +37,17 @@ class Fisher():
     def cal_threshold_2(self, w, avg_point_0, avg_point_1):
         return np.dot(w.transpose(), len(avg_point_1) * avg_point_0 + len(avg_point_0) * avg_point_1) / (len(avg_point_1) + len(avg_point_0))
 
+    def plot_dot(self, point, pattern='rx'):
+        plt.xlabel(u'x')
+        plt.ylabel(u'y')
+        plt.plot(point[:, 0], point[:, 1], pattern)
+
+    def plot_line(self, k, pattern='g-'):
+        plt.ylim(-0.5, 2)
+        x = np.arange(-0.05, 0.3, 0.1)
+        y = k * x
+        plt.plot(x, y, pattern, linewidth=2.0)
+
     def cal_w(self, cal_thresh=cal_threshold_2):
         idx_0, idx_1 = self.separate(self.trn_label)
         point_0 = self.getter_idx(idx_0, self.trn)
@@ -46,18 +57,13 @@ class Fisher():
         t_point_0 = self.getter_idx(t_idx_0, self.tst)
         t_point_1 = self.getter_idx(t_idx_1, self.tst)
 
-        plt.xlabel(u'x')
-        plt.ylabel(u'y')
-
-        plt.plot(point_0[:, 0], point_0[:, 1], 'ro')
-        plt.plot(point_1[:, 0], point_1[:, 1], 'bo')
-        plt.plot(t_point_0[:, 0], t_point_0[:, 1], 'rx')
-        plt.plot(t_point_1[:, 0], t_point_1[:, 1], 'bx')
+        self.plot_dot(point_0, 'ro')
+        self.plot_dot(point_1, 'bo')
+        self.plot_dot(t_point_0, 'rx')
+        self.plot_dot(t_point_1, 'bx')
 
         avg_point_0 = self.avgPoint(point_0)
-        print 'avg_point_0 ', avg_point_0
         avg_point_1 = self.avgPoint(point_1)
-        print 'avg_point_1 ', avg_point_1
 
         diff_0 = point_0 - np.tile(avg_point_0, (len(idx_0), 1))
         diff_1 = point_1 - np.tile(avg_point_1, (len(idx_1), 1))
@@ -68,12 +74,8 @@ class Fisher():
 
         sw_ = np.linalg.inv(sw)
         w = np.dot(sw_, avg_point_0 - avg_point_1)
-        x = np.arange(-0.1, 0.2, 0.1)
-        y = w[1] / w[0] * x
-        plt.plot(x, y, 'g-', linewidth=2.0)
-        plt.show()
-        n0 = len(point_0)
-        n1 = len(point_1)
+        self.plot_line(w[1] / w[0])
+
         thresh = cal_thresh(self, w, avg_point_0, avg_point_1)
         return w, thresh
 
@@ -95,8 +97,8 @@ class Fisher():
         for i in range(0, len(self.tst_label)):
             if self.tst_label[i] == result[i]:
                 hits += 1
+        plt.show()
         print hits * 1.0 / len(self.tst_label)
-
 
 def convert_to_float(l):
    return [float(d) for d in l]
